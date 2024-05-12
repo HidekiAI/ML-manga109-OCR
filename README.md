@@ -4,22 +4,28 @@ Part II of my Machine Learning exercise, utilizing manga109 curated data.  Pleas
 
 By the way, if you've somehow landed here looking for the "real" (proven to work and used by others) manga-ocr, hop over to [manga-ocr](https://github.com/kha-white/manga-ocr).  It's impressive, and they use "manga109-s" dataset!
 
-1. [Two parts training](#two-parts-training)
-    - [Text Detection](#text-detection)
-    - [Text Recognition](#ocr-text-recognition)
+1. [Two phases training](#two-phases-training)
+    - [Phase 1: Text Detection](#phase-1-text-detection)
+    - [Phase 2 OCR: Text Recognition](#phase-2-ocr-text-recognition)
     - [Collected Text](#collected-text)
 2. [The Lib and Demo](#the-lib-and-demo)
 3. [Links](#links)
 
 In a nutshell, rather than utilizing other researcher's post-trained data, I want to go through the entire excercises of building my own.  Another thing is that I am not too fond of Python (ever since the days when I had to battle between 2.7 and 3.x and constantly getting my Gentoo broken, and vowed to avoid Python like a plague thereafter).  I will follow papers written by smarter people than I such as [this paper](https://github.com/microsoft/unilm/tree/master/trocr) from researchers of Microsoft, [transformer](https://github.com/huggingface/transformers), and [this](https://huggingface.co/docs/transformers/v4.40.2/en/model_doc/vision-encoder-decoder#transformers.VisionEncoderDecoderModel), etc, but as mentioned, not the Python part :stuck_out_tongue_winking_eye: (yes, that trauma on 10+ years of Gentoo was so bad, I quit using Gentoo and switched to Debian, never looking back! - I've also learned that stability is more important than bleeding edge technology, especially on O/S which I have to use it daily!  I kept lying to myself, and telling myself "it'll get better" for 10+ years!)
 
-## Two parts training
+## Two phases training
 
 There will be two parts to train, the first part is the object detection part, and the second is text recognition (OCR) part.
 
 Note that even though I rant about Python, as long as I do not have to install it manually (meaning, I don't have to have that headache of figuring out which version of Python and PIP to install, etc) only other irritations I have is that darn column-alignment (Python, F#, and COBOL) that drives me nuts when I try to pretty-format and the formatter got confused and removed or added indention and all goes to angry-land...  It's not a bad language (actually, the wealth of libraries makes it a great tool!) so at least for Jupyter/Notebook under VSCode and CoLab (browser), I'll tolerate Python for building my training models.  Whether I like it or not, for ML Training using CoLab, I submit.
 
-### Text Detection
+Just a brief note on the question of why 2 phases?  In the first phase, we basically wish to classify whether the image has any text or not.  Manga109 has 4 classifications (at least, last I've checked): body, face, frame, and text.  For my purpose, I just need it to identify correctly where the text is, and correctly place a rectangle bounding box around it.
+
+Once we have the bounding box area, we can then pass that focused image (rectangle) to OCR which can then decide whether that text is Japanese or not, and if it is Japanese, proceed forward into transforming the image into actual UTF-8 text.
+
+From a lazy programmers' perspective (like myself), it would be more ideal to transform the text bounding area to UTF-8 the moment we find it.  But, another way to see it is, from optimization point of view, by first training to get as accurate as possible on determing (i.e. above 85%) that there is some text on the image, we can speed up the training concentrating just on that part.  Once we get good at identifying the text rectangle, we then can go into training how well we can transform the pixels into UTF-8 text, and get that part high on its training.  If that doesn't convince you, think of it this way, how parallel can you make it if you had both tasks in one, versus splitting workers to locate all the text, and then splitting workers to transform/OCR each rects found?
+
+### Phase 1: Text Detection
 
 Initially, I had started my path towards [TensorFlow Object Detection](https://github.com/tensorflow/models/tree/master/research/object_detection) model, but it turns out they have become deprecated and the README suggested I'd either use [TensorFlow Vision](https://github.com/tensorflow/models/tree/master/official/vision) or [Google Scenic](https://github.com/google-research/scenic).
 
@@ -31,7 +37,7 @@ After few minutes of head-scratching and dice-throwing, I've began my new paths 
 
 TODO: discuss steps and postmortems of obstacles encountered...
 
-### OCR: Text Recognition
+### Phase 2 OCR: Text Recognition
 
 Once my system can identify text on each manga panels, it's time to have it evaluate whether it is Japanese or some other language.
 
