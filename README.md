@@ -4,6 +4,13 @@ Part II of my Machine Learning exercise, utilizing manga109 curated data.  Pleas
 
 By the way, if you've somehow landed here looking for the "real" (proven to work and used by others) manga-ocr, hop over to [manga-ocr](https://github.com/kha-white/manga-ocr).  It's impressive, and they use "manga109-s" dataset!
 
+1. [Two parts training](#two-parts-training)
+    - [Text Detection](#text-detection)
+    - [Text Recognition](#ocr-text-recognition)
+    - [Collected Text](#collected-text)
+2. [The Lib and Demo](#the-lib-and-demo)
+3. [Links](#links)
+
 In a nutshell, rather than utilizing other researcher's post-trained data, I want to go through the entire excercises of building my own.  Another thing is that I am not too fond of Python (ever since the days when I had to battle between 2.7 and 3.x and constantly getting my Gentoo broken, and vowed to avoid Python like a plague thereafter).  I will follow papers written by smarter people than I such as [this paper](https://github.com/microsoft/unilm/tree/master/trocr) from researchers of Microsoft, [transformer](https://github.com/huggingface/transformers), and [this](https://huggingface.co/docs/transformers/v4.40.2/en/model_doc/vision-encoder-decoder#transformers.VisionEncoderDecoderModel), etc, but as mentioned, not the Python part :stuck_out_tongue_winking_eye: (yes, that trauma on 10+ years of Gentoo was so bad, I quit using Gentoo and switched to Debian, never looking back! - I've also learned that stability is more important than bleeding edge technology, especially on O/S which I have to use it daily!  I kept lying to myself, and telling myself "it'll get better" for 10+ years!)
 
 ## Two parts training
@@ -56,6 +63,12 @@ Another example may be that rather than passing it down to mecab to break it dow
 
 Final example may be that you just needed that raw text so that you can pass it down to text-to-speach (TTS) system to have your manga read aloud for you.
 
+As for me, what I want to do with it are two things, first is to collect all the "phrases" from as much manga as possible, and create a database of commonly used phrases that you ONLY read in manga but never in real life, and train a chatbot with it.  The bot will have this illusion that the use of languages are phrases of the manga is the truth.  I've seen videos on YouTube in which these Japanese teachers would beg foreigners not to assume that the Japanese they've learned from watching anime is the way common Japanese speaks, and that made me chuckle when I sometimes read genius comments by Japanese audiences who'd say stuff like 「やればできる子です」which they've obviously got it from manga.  The other day, I was reading a manga (I think it was 「 陰の実力者になりたくて!」) in which the character started practicing phrases he'd wish to say one of these days (I think he said 「残像だ！」) and made me want to create a bot which only spoke in this way (one of my favorite is 「見覚えのない天井だ」).  The prhases will be (initially) publicized in a form of either CSV (raw text) in which other users can participate in adding their own phrases to the base-trained-model to make the bot more smarter.  Alternatively, it can become a simple MotD database via [fortune](https://linux.die.net/man/6/fortune) and have [Cowsay](https://linux.die.net/man/1/cowsay) just randomly [wall](https://linux.die.net/man/1/wall) via `cron.hourly` (though I probably won't `wall` it since  it's VERY ANNOYING when a `wall` message just scroll my terminal whil I'm in `vim` coding...).  
+
+Note that I do not have to necessarily do all this work since all I have to do is just go to each of the meta-data directories in manga109 and just parse the [annotation](https://dl.acm.org/doi/10.1145/3011549.3011551) meta-data (they are in XML format) in the text and dump it, and I can probably also scrape all the text from [小説家になろう](https://syosetu.com/)...  So OCR is really moot for this purpose, but ideally if I had a tool that made it useful for others to OCR quickly from their collections of manga (OK, the real truth is, I just wanted to go through this excercise to learn what it takes to train ML, what kind of training do I need to do, how to integrate TensorFlow as well as utilizing it as a tool, and how to use the trained result to make it useful, so that I can say "I did it").
+
+The 2nd usage is of course, for my [lenzu](https://github.com/HidekiAI/lenzu).
+
 ## The Lib and Demo
 
 The demo will just scan the image and dump the rectangle pixel-coordinates (relative to upper-left of the image as origin (0,0)) where the text was found, and the raw-text (kanji and kana as-is).  See the section on "Collected Text" for some suggestions on what to do with these raw text.
@@ -66,3 +79,4 @@ TODO: Discuss about the sample-demo app which binds the trained model for seekin
 
 - [manga109s](http://www.manga109.org/ja/index.html)
 - cc-100 [ja](https://data.statmt.org/cc-100/ja.txt.xz)
+- [manga109 tools and API](https://github.com/manga109)
