@@ -86,3 +86,11 @@ TODO: Discuss about the sample-demo app which binds the trained model for seekin
 - [manga109s](http://www.manga109.org/ja/index.html)
 - cc-100 [ja](https://data.statmt.org/cc-100/ja.txt.xz)
 - [manga109 tools and API](https://github.com/manga109)
+
+## Postmortems, caveats, and hindsights
+
+Skip paragraph below, it's just my rant:
+
+  First of all, before I go into all of it, I just want to rant on how much I passionately dispise how poorly Jupiter Notebook integrates with vim.  When you naviate (cursor mode) within the cells, if you hit 'k' or 'j' once too many, your cursor goes outside the cell and it goes into somewhere unpredictable.  Am I exaggerating?  You can only understand this if you've actually experienced it...  All I can say is that it's a real big pain coding and debugging, and as previously mentioned, because I dislike Python, it's a double whammy!  Maybe for a data-scientists, they're OK with this, but for a non-Python programmer (C++, Rust, C#, etc) dealing with this is probably something that requires tolerances in high degree.
+
+End ranting...
