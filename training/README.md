@@ -33,7 +33,7 @@ In the end, this approach was dropped completely after I've encountered the disk
 
 Next, I've gone to the research on text (image) detection via Tensorflow (integrated with keras) and have discovered that most commonly practiced approaches were to use [Faster R-CNN](https://en.wikipedia.org/wiki/Object_detection) and [Single Shot MultiBox Detector (SSD)](https://en.wikipedia.org/wiki/Object_detection) (note that for robotics, I'm told YOLO is also considered), and have learnt that SSD is easier to implement (to understand and debug), so I've gone through that path.
 
-
+Read more specific [here](text_detection/README.md)
 
 ## Phase 2 OCR: Text Recognition
 
@@ -41,6 +41,7 @@ Once my system can identify text on each manga panels, it's time to have it eval
 
 TODO: discuss steps and postmortems of obstacles encountered...
 
+Read more specific [here](text_recognition/README.md)
 
 ## Postmortem, hindsights, and caveats
 
