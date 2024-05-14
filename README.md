@@ -10,6 +10,12 @@ In a nutshell, rather than utilizing other researcher's post-trained data, I wan
 
 In a nutshell, I have 2 phases to training, first is to train to locate WHERE the texts are, and 2nd is to OCR.  Originally, I was hoping to use out-of-the-box OCR (i.e. TensorFlowLite keras-OCR) but TensorFlow version is only English OCR.  Then there is Google ML Kit v2 OCR, which does handle Japanese, but it turns out it only supports Android and iOS.  In any case, read my experiments, trial-and-error, etc on the training directory if interested.
 
+### Pretrained OCR's
+
+On the side-note, if you are just interested in OCR for English, TensorFlow OCR does both phases as part of one API, it will detect the text location, and then transform the located text from pixels to text/UTF-8 (array of `char[]`s)
+
+Tesseract is another library that can detect/locate text, and transform to text (`char[]`s) and it can (not too well, but it tries) to transform pixels to string for vertically oriented Japanese (`jpn_vert`) and horizontal (`jpn`) trained data.
+
 ### Collected Text
 
 Once the text has been collected, from here on, it's up to the user to determine what to do with it.  What you do with it is beyond the scope of this excercise, but here are few suggestions:

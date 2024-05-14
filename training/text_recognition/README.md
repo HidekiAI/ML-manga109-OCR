@@ -9,6 +9,7 @@ Then comes the sad part...  The ML Kit only is for Android and iOS.  Hence, in t
 1. Use [Tesseeract](https://github.com/tesseract-ocr/tesseract) - we can avoid the training completely and just trust it, but from my experiences from my [other project](https://github.com/HidekiAI/lenzu), Japanese text (horizontal and vertial) did not do too well.
 2. CRNN model via TensorFlow/Keras - Using Convolutional Recurrent Neural Network based on annotation dataset
 
+Note that Tesseract allows input of your own trained data, so just *maybe* I will try to train the data using manga109 data if I learn how to train it...  The problem (if I recall) was that tesseract data requires fonts to be in same dimensions, almost like font files (almost reminds me of MNIST text classification data), so the tool to make this would be just extra extra work!
 
 ## Vertical Text
 
