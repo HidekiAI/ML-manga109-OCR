@@ -16,4 +16,7 @@ Cargo.lock
 # binary data which should not be pushed
 data/
 .vscode/
+data*/
+
+data
 

@@ -17,37 +17,31 @@ Just a brief note on the question of why 2 phases?  In the first phase, we basic
 
 Once we have the bounding box area, we can then pass that focused image (rectangle) to OCR which can then decide whether that text is Japanese or not, and if it is Japanese, proceed forward into transforming the image into actual UTF-8 text.
 
-From a lazy programmers' perspective (like myself), it would be more ideal to transform the text bounding area to UTF-8 the moment we find it.  But, another way to see it is, from optimization point of view, by first training to get as accurate as possible on determing (i.e. above 85%) that there is some text on the image, we can speed up the training concentrating just on that part.  Once we get good at identifying the text rectangle, we then can go into training how well we can transform the pixels into UTF-8 text, and get that part high on its training.  If that doesn't convince you, think of it this way, how parallel can you make it if you had both tasks in one, versus splitting workers to locate all the text, and then splitting workers to transform/OCR each rects found?
+From a lazy programmers' perspective (like myself), it would be more ideal to transform the text bounding area to UTF-8 the moment we find it, probably because from the user's perspective OCR libraries such as TensorFlowLite-OCR and Tessesract locates the text region, determines if it is the language it understands, and return a text-string.  But that's from end-user's view of OCR as a whole.
+
+From optimization point of view, by first training to get as accurate as possible on determing (i.e. above 85%) that there is some text on the image, we can speed up the training concentrating just on that part.  Once we get good at identifying the text rectangle, we then can go into training how well we can transform the pixels into UTF-8 text, and get that part high on its training.
+
+If that doesn't convince you, think of it this way, how parallel can you make it if you had both tasks in one, versus splitting workers to locate all the text, and then splitting workers to transform/OCR each rects found?
+
+Hence, there are 2 phases...
 
 ## Phase 1: Text Detection
 
-Initially, I had started my path towards [TensorFlow Object Detection](https://github.com/tensorflow/models/tree/master/research/object_detection) model, but it turns out they have become deprecated and the README suggested I'd either use [TensorFlow Vision](https://github.com/tensorflow/models/tree/master/official/vision) or [Google Scenic](https://github.com/google-research/scenic).
+I've gone through few experiments and approaches, tried TFRecords via TensorFlow Vision in TensorFlow Keras, etc.  Read more specific [here](text_detection/README.md)
 
-After few minutes of head-scratching and dice-throwing, I've began my new paths towards TF-Vision mainly because:
+## Phase 2: Text Recognition (OCR)
 
-- TF-Vision is developed by TensorFlow team, and because I'm too poor to afford high-performance computer for home, I have to use Google CoLab if I do not want to wait days for data to become trained, hence I lean towards any libraries that are TensorFlow friendly (integrates seamlessly with CoLab)...
-- TFVision models can be fine-tuned using transfer learning, where you start with a pre-trained model and adapt it to your specific dataset. I can use the manga109 images along with their associated metadata (which consists of rectangle locations of the texts) for fine-tuning the model to detect text regions.
-- Because Google CoLab comes with TensorFlow pre-installed, TFVision (which is part of TensorFlow) can be accessed without additional setup.
-
-In the end, this approach was dropped completely after I've encountered the disk usage issue of prepping the data (I could probably reduce the image down to say 256x256 per page, but I was thinking too programmer-based method rather than data-scientist-based method, so I abandoned it completely).
-
-Next, I've gone to the research on text (image) detection via Tensorflow (integrated with keras) and have discovered that most commonly practiced approaches were to use [Faster R-CNN](https://en.wikipedia.org/wiki/Object_detection) and [Single Shot MultiBox Detector (SSD)](https://en.wikipedia.org/wiki/Object_detection) (note that for robotics, I'm told YOLO is also considered), and have learnt that SSD is easier to implement (to understand and debug), so I've gone through that path.
-
-Read more specific [here](text_detection/README.md)
-
-## Phase 2 OCR: Text Recognition
-
-Once my system can identify text on each manga panels, it's time to have it evaluate whether it is Japanese or some other language via classification.  From what I understand, Tensorflow already comes (built-in) with OCR, so I'll probably be using that.  I'll discover all this and postmortem my discoveries.
-
-TODO: discuss steps and postmortems of obstacles encountered...
-
-Read more specific [here](text_recognition/README.md)
+Once my system can identify text on each manga panels, it's time to have it evaluate whether it is Japanese or some other language via classification.  From what I understand, Tensorflow already comes (built-in) with OCR, so I'll probably be using that.  I'll discover all this and postmortem my discoveries.  Read more specific [here](text_recognition/README.md)
 
 ## Postmortem, hindsights, and caveats
 
 Skip paragraph below, it's just my rant:
 
   First of all, before I go into all of it, I just want to rant on how much I passionately dispise how poorly Jupiter Notebook integrates with vim.  When you naviate (cursor mode) within the cells, if you hit 'k' or 'j' once too many, your cursor goes outside the cell and it goes into somewhere unpredictable.  Am I exaggerating?  You can only understand this if you've actually experienced it...  All I can say is that it's a real big pain coding and debugging, and as previously mentioned, because I dislike Python, it's a double whammy!  Maybe for a data-scientists, they're OK with this, but for a non-Python programmer (C++, Rust, C#, etc) dealing with this is probably something that requires tolerances in high degree.
+
+Oh, and another thing...  that darn trauma of why I hate/hated Python due to that painful conflicts on libraries between 2.7 and 3.x, on Gentoo...  You know what?  It's almost the same trauma when you have to deal with TensorFlow and Keras!  For example, I started on the paths of TensorFlow Object Detection, and to discover it is depracated...  it repeats all the way up to usage of [ImageDataGenerator](https://github.com/keras-team/keras/blob/669a97acd05a45e9ea5529fc645e8ac41995eb92/keras/src/legacy/preprocessing/image.py#L950) which has become DEPRECATED!  Where it will end, I've no clue, and some may scream RTFM! but TFM is ONLY USEFUL if the library is specific to it's purpose (meaning, small).  A kitchen-sink library such as TensorFlow/Keras is as huge as OpenCV (probably bigger?) is just insane to use.  Or when's the last time you've done `$ ffmpeg --help` and thought, "RTFM my butt!"?
+
+I may be biased to Rust crates perhaps, I maybe biased to .NET NuGet perhaps...  where they are sensitive to versioning...  Sure, I sometimes run into an issue of upgrading version on some of the crates (i.e. 'image') in my `Cargo.toml` and then other libraries that depended on older version just vomits (one of my peeves is the error during compiling is quite subtle on this dependency and I sometimes used to waste an hour on it, but these days, I just increment, build, see error, go back, build, and leave the version as-is).  In any case, I cannot complain about the authors of the libraries because as a user to a free library, beggars cannot be choosers...  But if I have choices of the weapons and armors, of which languages to equip with,  I'd avoid Python so that I don't have to take HP DMG points (in which, usually at the end of my day, my HP is usually close to 0!).
 
 End ranting...
 
