@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="NewDataSet" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+  <xs:element name="book">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="characters" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="character" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:attribute name="id" type="xs:string" />
+                  <xs:attribute name="name" type="xs:string" />
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="pages" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="page" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="frame" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:attribute name="id" type="xs:string" />
+                        <xs:attribute name="xmin" type="xs:string" />
+                        <xs:attribute name="ymin" type="xs:string" />
+                        <xs:attribute name="xmax" type="xs:string" />
+                        <xs:attribute name="ymax" type="xs:string" />
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="text" nillable="true" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:simpleContent msdata:ColumnName="text_Text" msdata:Ordinal="5">
+                          <xs:extension base="xs:string">
+                            <xs:attribute name="id" type="xs:string" />
+                            <xs:attribute name="xmin" type="xs:string" />
+                            <xs:attribute name="ymin" type="xs:string" />
+                            <xs:attribute name="xmax" type="xs:string" />
+                            <xs:attribute name="ymax" type="xs:string" />
+                          </xs:extension>
+                        </xs:simpleContent>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="face" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:attribute name="id" type="xs:string" />
+                        <xs:attribute name="xmin" type="xs:string" />
+                        <xs:attribute name="ymin" type="xs:string" />
+                        <xs:attribute name="xmax" type="xs:string" />
+                        <xs:attribute name="ymax" type="xs:string" />
+                        <xs:attribute name="character" type="xs:string" />
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="body" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:attribute name="id" type="xs:string" />
+                        <xs:attribute name="xmin" type="xs:string" />
+                        <xs:attribute name="ymin" type="xs:string" />
+                        <xs:attribute name="xmax" type="xs:string" />
+                        <xs:attribute name="ymax" type="xs:string" />
+                        <xs:attribute name="character" type="xs:string" />
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute name="index" type="xs:string" />
+                  <xs:attribute name="width" type="xs:string" />
+                  <xs:attribute name="height" type="xs:string" />
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="title" type="xs:string" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="NewDataSet" msdata:IsDataSet="true" msdata:UseCurrentLocale="true">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="book" />
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

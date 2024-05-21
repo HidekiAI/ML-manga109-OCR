@@ -1,6 +1,10 @@
 # Text Detection
 
-Initially, I had started my path towards [TensorFlow Object Detection](https://github.com/tensorflow/models/tree/master/research/object_detection) model, but it turns out they have become deprecated and the README suggested I'd either use [TensorFlow Vision](https://github.com/tensorflow/models/tree/master/official/vision) or [Google Scenic](https://github.com/google-research/scenic).
+Firstly, I want to clarify the differences as I understand it, between 'classification' and 'object detection'.  In a nutshell, 'object detection' can classify multiple objects (i.e. an image is of 2 men and 3 dogs).
+
+Next, I'm not quite familiar with all the formats the smart people of the ML world are used to, but one format that caught my eyes were Microsoft COCO format, in which the annotations of Manga109 resembles quite strongly with.  I cannot afford to use Azure AI, but if you can afford it, look into [COCO Format Conversion](https://github.com/manga109/manga109-demos/tree/master/coco-format-conversion) tool by the smart folks from manga109.
+
+Initially, I had started my path towards [TensorFlow Object Detection](https://github.com/tensorflow/models/tree/master/research/object_detection) model, but it turns out they have become deprecated and the README suggested I'd either use [TensorFlow Vision](https://github.com/tensorflow/models/tree/master/official/vision) or [Google Scenic](https://github.com/google-research/scenic), and follow the the [Import COCO files from elsewhere](https://learn.microsoft.com/en-us/azure/ai-services/computer-vision/how-to/model-customization?tabs=studio#import-coco-files-from-elsewhere) section as your starting point.
 
 After few minutes of head-scratching and dice-throwing, I've began my new paths towards TF-Vision mainly because:
 
@@ -8,9 +12,31 @@ After few minutes of head-scratching and dice-throwing, I've began my new paths 
 - TFVision models can be fine-tuned using transfer learning, where you start with a pre-trained model and adapt it to your specific dataset. I can use the manga109 images along with their associated metadata (which consists of rectangle locations of the texts) for fine-tuning the model to detect text regions.
 - Because Google CoLab comes with TensorFlow pre-installed, TFVision (which is part of TensorFlow) can be accessed without additional setup.
 
-In the end, this approach was dropped completely after I've encountered the disk usage issue of prepping the data (I could probably reduce the image down to say 256x256 per page, but I was thinking too programmer-based method rather than data-scientist-based method, so I abandoned it completely).
+In the end, this approach was dropped completely after I've encountered the disk usage issue of prepping the data (I could probably reduce the image down to say 256x256 per page, but I was thinking too programmer-based method rather than data-scientist-based method, so I abandoned it completely).  The image preprocessing (I guess it's [filtering](https://learn.microsoft.com/en-us/training/modules/analyze-images-computer-vision/2-understand-computer-vision)) took a bit, and I think I should have split that into a separate work as a tool maybe (i.e. using manga109api library, but if possible in rust...)
 
 Next, I've gone to the research on text (image) detection via Tensorflow (integrated with keras) and have discovered that most commonly practiced approaches were to use [Faster R-CNN](https://en.wikipedia.org/wiki/Object_detection) and [Single Shot MultiBox Detector (SSD)](https://en.wikipedia.org/wiki/Object_detection) (note that for robotics, I'm told YOLO is also considered), and have learnt that SSD is easier to implement (to understand and debug), so I've gone through that path.
+
+I've learned about how N-dimensionalization of tokens (via transformers) in which objects with similar classes clusters at same area, in which I kind of now understand those 3D plots...  The spatial plotting of CNN...  This also explains that `X_Something` and `Y_Something` naming conventions in terms of plotting...
+
+## TL;DR: Step-by-step Recipe
+
+xxx
+
+## Tutorials, researchs, educations, and examples
+
+This readme MD have become just mess of thoughts from multiple days of self-educating and researches of how to approach all this.  Prior to starting this project, I only had vague comprehension of what it means to "train" an ML.  I was aware of it, but I did not realize how complex it was.  At the time of this writing, I cannot afford owning any high (or for the fact, mid) performance GPU, nor can I afford to "rent" cloud GPU to run TensorFlow, hence I'd be running trainings on Google CoLab on a single CPU mode.  It was still better than running those trainings on my local hosts.
+
+Once I've learned about existance of HuggingFace transformer models, which generous scientists have spent days on X-GPU's (i.e. 3 days on 8 GPUs) and shared their trained models for the world to use, I've began using their data as my base model.  I'd imagine models that took 3 days at 8-GPUs, if I had to train the same thing on *my* machine, it'll probably take 5 days or longer, or worse fry my CPU (2 of my PC's fried already within past 1.5 years)...
+
+Another thing I've learned is that I really want to use R-CNN (or YOLO) to detect where the text is, but accuracy wise, I cannot (or should not) compare the rectangles defined in Manga109 annotation meta-data with what the training determined because the rectangle coordinates can (almost always) differ by pixels.  What has to be compared (whether it trained correctly) is the OCR bit, in which whether if the annotation thinks that the text in that bounding box is "Apples and Oranges", and the OCR recognized as "apples and oranges" (it's not the `char[]` array byte-by-byte that matters, it's the accuracies of how close it has detected).
+
+But that too has triggered a hindsight...  A manga page will have multiple regions of text boxes, in fact, in a single panel, there may be more than one text rectangle boxes of 2 (or more) persons talking, or one person speaking in both speach-bubble and thought-bubble.  Which text belongs to which?  If the OCR recognized the work "Apple" on panel 2 because it scanned from left-to-right, but on panel 1 (Japanese manga panels are right-to-left) was the text box of "Orange".  In which case, I do need to observe the rectangle coordinates in the annotation.
+
+The thought, espcially for a ML-novice, did cross my mind, as a programmer, this thought is probably the correct solution, is to preprocess all the images, in which this tool (obviously written in Rust) will read the rectangle coordinates of the annotation, cut out the image from the mapped (matching) page, and save it onto the disk.  And basically train based on just the cut-outs.  If that was the case, I can even go further, and just run the [Tesseract tool](https://github.com/tesseract-ocr/tessdoc/blob/main/Fonts.md) which will automagically put a bounding box around each kanji/kana character of same dimensions, and I I have to do is train my own [Tesseract Data](https://tesseract-ocr.github.io/tessdoc/Data-Files.html) (`.traineddata`).
+
+I may still lean towards that paths, especially because I've used Tesseract in the past project, and just recently also learned (while toying on the idea of training my own) that Tesseract 4 has its own [NeuralNet](https://github.com/tesseract-ocr/tessdoc/blob/main/tess4/NeuralNetsInTesseract4.00.md) engine (via usage of `-psm 13` arg).  It's quite attractive, especially because the (latest) NN supports vertical Japanese.  And to top it off, compared to other trained-model for Manga OCR, Tesseract is quite fast!  It's written in pure C++ and takes advantage of OpenMP and SSE!
+
+On my [other project](https://github.com/HidekiAI/lenzu), I've abandoned the use of Tesseract mainly because I did not have any method to detect for text regions.  Tesseract does well almost always if there are only texts in the image.  I got the feeling that it's an OCR based on text-only images.  If I can isolate and focus (crop) just the text without any noise of manga images, it has quite high accuracy.  In fact, even without proving, I can predict that Tesseract will do quite well without the Manga109 data as long as I can indicate to Tessesract the focused text region.
 
 ## Choice of Models
 
@@ -77,15 +103,18 @@ As a starter, I decided to have my test data of 4 "books".  When I ran my initia
 
 It turns out it `image_dataset_from_directory()` treats each "book" directories as a class.  If I had 109 manga books, that means it has 109 classes...  Go take a look at the [directory structure](https://www.tensorflow.org/api_docs/python/tf/keras/preprocessing/image_dataset_from_directory) on the documentations, and notice that the directory names are 'class_a', 'class_b', etc.  Each dir are classes.
 
+One (trival) approach I've thought about was to split the groups into 2 classes based on annotations.  One directory contains images without text, and another directory is with.  Teach/train the ML to classify the two.  I'm pretty sure Windows (unlike Linux) will have issues of max number of files one can have in a single folder, so I'll probably train in multiple clusters.  Filenaming will be `<bookname>_<page>.jpg` so that even when the folders are flattened, it won't overwrite/collide.  Once the data is preprocessed, I don't need the annotations folder, and let it train for that...
+
 So in order for me to stay on track, I am listing what I need here:
 
 - Using [Manga109API](https://github.com/manga109/manga109api), I can iterate through "books"
 - Using [CRAFT Word Detection](https://github.com/clovaai/CRAFT-pytorch) to train models is prefered than to write manu rules/logic/code.
 - Using models such as [CTC](https://en.wikipedia.org/wiki/Connectionist_temporal_classification) loss to classify unknown sequences characters on the image (see article link in the [Links](#links) section), but this assumes evolution in time associated to horizontal coordinate, for vertical texts, I'm thinking of reading each pixels in vertical AND from right to left...
 
-
 ## Links
 
+- [Convolutional Nueral Networks CNN](https://learn.microsoft.com/en-us/training/modules/analyze-images-computer-vision/2b-computer-vision-models) - CNN-based models has been around as an object detection computer vision solutions for many years.
+- [Text Classification Using Convolutional Neural Networks](https://www.youtube.com/watch?v=8YsZXTpFRO0) - probably my currently most favorite explanations of CNN, this gentleman knows how to explain (teach).
 - [OCR model for reading Captchas](https://keras.io/examples/vision/captcha_ocr/) - Keras example on OCR; from what I understand, Keras built-in OCR is English only.
 - [Japanese OCR with the CTC Loss](https://medium.com/@natsunoyuki/ocr-with-the-ctc-loss-efa62ebd8625) by Y. Natsume and [CTC Loss OCR.ipynb](https://github.com/natsunoyuki/Data_Science/blob/master/CTC%20Loss%20OCR.ipynb)
 - [Sequence Modeling With CTC](https://distill.pub/2017/ctc/) by Awni Hannun

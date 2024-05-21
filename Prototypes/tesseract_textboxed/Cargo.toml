@@ -1,9 +1,11 @@
-workspace = { members = [ "Prototypes/manga109api","Prototypes/tesseract_textboxed"] }
 [package]
-name = "ml_manga_ocr"
+name = "tesseract_textboxed"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+manga109api = { path = "../manga109api" }
+image = "0.25.1"
+rusty-tesseract = "1.1.10"
