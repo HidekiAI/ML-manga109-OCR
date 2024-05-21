@@ -65,3 +65,18 @@ Depending on ML methods, NN can possibly learn to inspect neighbor characters, a
 I think some techniques that were also used was to lookup against dictionary/jisho files.  In which, it will look for the kanji in the jisho, and common jisho will usually provide example of its usage, and so there will be (sequentially) neighbor characters, in which ML can guess based on similar looking character also exists.
 
 There is a [HuggingFace model]() which I speculate did just that by using [mecab]() to do some intelligent guessing of neighbor characters.  Mecab is very nice idea/usage because by having it break down into meaningful sequence of characters, if that chacter is between two kanji, it can look to see if its previous and next characters are similar, and if so, it can increase its predictions to higher accuracy...
+
+## Citation
+
+```text
+@article{multimedia_aizawa_2020,
+    author={Kiyoharu Aizawa and Azuma Fujimoto and Atsushi Otsubo and Toru Ogawa and Yusuke Matsui and Koki Tsubota and Hikaru Ikuta},
+    title={Building a Manga Dataset ``Manga109'' with Annotations for Multimedia Applications},
+    journal={IEEE MultiMedia},
+    volume={27},
+    number={2},
+    pages={8--18},
+    doi={10.1109/mmul.2020.2987895},
+    year={2020}
+}
+```
