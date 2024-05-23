@@ -18,6 +18,8 @@ Next, I've gone to the research on text (image) detection via Tensorflow (integr
 
 I've learned about how N-dimensionalization of tokens (via transformers) in which objects with similar classes clusters at same area, in which I kind of now understand those 3D plots...  The spatial plotting of CNN...  This also explains that `X_Something` and `Y_Something` naming conventions in terms of plotting...
 
+I've learned that it's an art of its own that a novice like myself should not dive in unless I'm trying to get a PhD or something...  I've learned that there are already training tools, in specific [YOLO that does object detection](https://docs.ultralytics.com/tasks/detect/).  At the time of this writing, since YOLO v8 was avaiable, I think I'll challenge myself towards that.  One attractive thing about YOLO is that YOLO can be trained both by Python and/or CLI.  Either way, as long as it can run on CoLab, I'll take either/or.
+
 ## TL;DR: Step-by-step Recipe
 
 xxx
@@ -118,6 +120,7 @@ So in order for me to stay on track, I am listing what I need here:
 - [OCR model for reading Captchas](https://keras.io/examples/vision/captcha_ocr/) - Keras example on OCR; from what I understand, Keras built-in OCR is English only.
 - [Japanese OCR with the CTC Loss](https://medium.com/@natsunoyuki/ocr-with-the-ctc-loss-efa62ebd8625) by Y. Natsume and [CTC Loss OCR.ipynb](https://github.com/natsunoyuki/Data_Science/blob/master/CTC%20Loss%20OCR.ipynb)
 - [Sequence Modeling With CTC](https://distill.pub/2017/ctc/) by Awni Hannun
+- [Object Detection using Yolo-v5](https://github.com/nicknochnack/StopSign) (Nick Renotte) - Do watch his [video](https://www.youtube.com/watch?v=zPWxavBy1X0), he's one of the more entertaining, smart, and knowledgeable (at least to me) gems on YouTube.
 
 Side note: When reading these papers and articles, at first, I could not comprehend this weird conventions of naming the variables with `x_somthing` and `y_something`, for example:
 
@@ -153,3 +156,5 @@ In any case I won't be following this convention even if I comprehend the reason
 My gawd, redundancies nightmare, and it's not even correct since if it is `str_something`, shouldn't it be of type `&str`? :inocent:
 
 In any case, these kinds of notations goes away after few years, so I now avoid the temptations and just make each variables meaningful.  Recently, I've come back to using `i` as my index variable for `for` loop in C++ and Rust (when I use `enumerate()`) but I used to hate reading somebody else's code that only used `x`, `y`, `i`, `j`, and `k`.  Incidentally, from what I was told, Fortran 77 (yes, I have coded in Fortran 77 on Dec VAX!) is where the `i`, `j`, and `k` started from, which was because it's part of the language syntax that they represented iteration variable in the loop.  It's fixed...  Just like in 6502, you only have `A` (accumulator), `X` and `Y` (mainly for indexing and offset), or in 8086, it was `AX`, `BX`, `CX`... etc...  In any case, arrogant-selfish people who use these single letter variables, unless you can convince me that you've coded in Assembly Language at least for a year WITHOUT complaining that you do not understand what the purpose of the registers are for inside disassembler (that's another way of saying debugging, but without symbols), no matter how smart you are, you suck!  (I've professionally coded in Assembly Language (at SEGA Interactive) for 7 years, and hated debugging assembly language...)
+
+## Postmortem

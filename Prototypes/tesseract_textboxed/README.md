@@ -58,7 +58,7 @@ Incidentally, the oldest Japanese OCR had a rule in which it assumed all charact
 
 Another issues with OCR's are the [diacritics](https://en.wikipedia.org/wiki/Diacritic) such as 「゛」 and 「゜」 which depending on what the DPI was, it gets confused, i.e.  「ふぶぷフブプ」.
 
-And lastly, characters that looks alike, such as 「ノンシソ」 for kanas, and of course, kanjis such as 「愛」vs「変」, 「王」vs「玉」, 「人」vs「入」, and 「猫」vs「描」.  From UTF-8 (text) point of view, when you compare bytes-to-bytes they are different.  But from OCR point of view, imagine trying to squint your eyes, and maybe the image is a bit blurred, or maybe during the Conv2D layer, the sillouettes of 「猫」 and 「描」 looks almost the same...  
+And lastly, characters that looks alike, such as 「ノンシソ」 for kanas, and of course, kanjis such as 「愛」vs「変」, 「王」vs「玉」, 「人」vs「入」, and 「猫」vs「描」.  From UTF-8 (text) point of view, when you compare bytes-to-bytes they are different.  But from OCR point of view, imagine trying to squint your eyes, and maybe the image is a bit blurred, or maybe during the Conv2D layer, the sillouettes of 「猫」 and 「描」 looks almost the same...  Note that this is similar for English OCR (even MRZ-based) of differentiating between { "O", "0", "o", "@"", "D", "8", "Q" }, or { "3", "8", "5", "E" }, etc
 
 Depending on ML methods, NN can possibly learn to inspect neighbor characters, and realize that it meant to say 「猫」instead of 「描」.  But what if the context of the dialogue was about drawing a cat?  Or a cat is drawing?
 

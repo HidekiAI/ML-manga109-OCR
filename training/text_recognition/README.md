@@ -23,4 +23,6 @@ One suggestion is to rotate the rectangle in -90 degrees (counter-clockwise 90de
 - [Tensorflow OCR](https://www.tensorflow.org/lite/examples/optical_character_recognition/overview)
 - [ML Kit Text Recognition v2](https://developers.google.com/ml-kit/vision/text-recognition/v2)
 
-It
+## Postmortem
+
+One thing I've mentioned on [other pages](../text_detection/README.md#tutorials-researchs-educations-and-examples) was to try prototyping using Tesseract by having it only concentrate on text-recognition part and not stress on text-detection part, by providing just the "jpn_vert" texts from Manga109's "text" annotation bounding-boxes.  You can read more about my attempt [here](../../Prototypes/tesseract_textboxed/README.md).

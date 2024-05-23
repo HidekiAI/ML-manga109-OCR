@@ -104,19 +104,19 @@ impl Manga109 {
             .find(|(idx, pg)| idx == page_index)
             .expect("Page {page} of book '{book}' not found");
         let debug_image_root_dir = format!("{}/images/{}", self.root_dir, book.title); // won't use this in the future...
-        if debug_image_root_dir != book.get_image_path() {
+        if debug_image_root_dir != book.get_image_dir_paths() {
             // sometimes, on Windows path, it might have \\ instead of / so it's good to know when/where I've violated the pathing format...
             println!(
                 "WARNING: Image root directory mismatch - expected:{}, actual:{}",
                 debug_image_root_dir,
-                book.get_image_path()
+                book.get_image_dir_paths()
             );
         }
 
         // NOTE: jpg files are 3 digits, so we need to zero-pad the index, any pages greater than 999 should have no problems
         // we also assume that exptension ".jpg" are always all lower-case
         let absolute_image_path =
-            normalize_paths(format!("{}/{:03}.jpg", book.get_image_path(), index).as_str());
+            normalize_paths(format!("{}/{:03}.jpg", book.get_image_dir_paths(), index).as_str());
         // verify if JPG actually exists
         if !std::path::Path::new(&absolute_image_path).exists() {
             panic!("Image '{absolute_image_path}' not found");
@@ -208,14 +208,14 @@ pub struct Book {
     // Absolute paths to the annotation XML file and the root directory of images
     // they are usually in format of "{root_dir}/annotations/{book.title}.xml" and "{root_dir}/images"
     // NOTE: title is used as dir-paths, hence it is case sensitive!
-    annotation_filepaths: String, // can I store std::path here instead?
+    annotation_filepaths: String, // Full paths with filename of the XML file (i.e. /foo/annotations/bar.xml)
     image_root_dir: String,       // note that this is different from img_path()
 }
 impl Book {
-    pub fn get_image_path(&self) -> String {
+    pub fn get_image_dir_paths(&self) -> String {
         normalize_paths(self.image_root_dir.clone().as_str())
     }
-    pub fn get_annotation_path(&self) -> String {
+    pub fn get_annotation_file_paths(&self) -> String {
         normalize_paths(self.annotation_filepaths.clone().as_str())
     }
 }
@@ -235,6 +235,7 @@ pub struct Page {
     pub index: usize, // aka page_number
     pub width: u32,   // aka pixel_width
     pub height: u32,  // aka pixel_height
+    //image_file_path: String,  // i.e. "/foo/images/bar/009.jpg" (index==9)
 }
 impl Clone for Page {
     fn clone(&self) -> Self {

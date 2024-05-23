@@ -1,0 +1,8 @@
+[package]
+name = "convert_annotations_to_yolo"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+manga109api = { path = "../../../../Prototypes/manga109api/" }
+rand = "0.8.5"

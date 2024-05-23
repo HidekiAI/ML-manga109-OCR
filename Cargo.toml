@@ -1,9 +1,8 @@
-workspace = { members = [ "Prototypes/manga109api","Prototypes/tesseract_textboxed"] }
+workspace = { members = [ 
+    "Prototypes/manga109api",
+    "Prototypes/tesseract_textboxed", 
+    "training/text_detection/tools/convert_annotations_to_yolo"] }
 [package]
 name = "ml_manga_ocr"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
