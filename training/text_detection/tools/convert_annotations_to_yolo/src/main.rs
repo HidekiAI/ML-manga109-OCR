@@ -4,14 +4,11 @@ use std::{io::Write, path};
 enum DatasetType {
     Train,
     Val,
+    Test,
 }
 
 fn normalize_paths(path: &std::path::PathBuf) -> std::path::PathBuf {
-    let str_path = path
-        .to_str()
-        .unwrap()
-        .replace("\\", "/")
-        .replace("//", "/");
+    let str_path = path.to_str().unwrap().replace("\\", "/").replace("//", "/");
     std::path::PathBuf::from(path::Path::new(str_path.as_str()))
 }
 
@@ -72,12 +69,24 @@ fn labels_train_dir(root_data_dir: &str) -> std::path::PathBuf {
 fn labels_val_dir(root_data_dir: &str) -> std::path::PathBuf {
     std::path::Path::new(root_data_dir).join("labels/val")
 }
+fn images_test_dir(root_data_dir: &str) -> std::path::PathBuf {
+    std::path::Path::new(root_data_dir).join("images/test")
+}
+fn labels_test_dir(root_data_dir: &str) -> std::path::PathBuf {
+    std::path::Path::new(root_data_dir).join("labels/test")
+}
 fn mk_dataset_dir(root_data_dir: &str) {
     // 'mkdir -p' equivalent, if paths already exists, it will not panic
     std::fs::create_dir_all(images_train_dir(root_data_dir)).unwrap();
     std::fs::create_dir_all(images_val_dir(root_data_dir)).unwrap();
+    std::fs::create_dir_all(images_test_dir(root_data_dir)).unwrap();
     std::fs::create_dir_all(labels_train_dir(root_data_dir)).unwrap();
     std::fs::create_dir_all(labels_val_dir(root_data_dir)).unwrap();
+    std::fs::create_dir_all(labels_test_dir(root_data_dir)).unwrap();
+}
+
+fn format_filename(title: &str, page: &usize, extension: &str) -> String {
+    format!("{}_{:03}.{}", title, page, extension)
 }
 
 fn copy_image_to_dataset(
@@ -88,8 +97,9 @@ fn copy_image_to_dataset(
 ) {
     //let src_annotation_file = std::path::Path::new(src_book.get_annotation_file_paths().as_str()); // i.e. annotations/title1.xml
     let img_dir_paths = src_book.get_image_dir_paths();
-    let src_image_dir = std::path::Path::new(img_dir_paths.as_str()); // i.e.  images/title1/
-    let src_image_path = src_image_dir.join(format!("{:03}.jpg", page)); // i.e. 009.jpg
+    let src_image_dir = std::path::Path::new(img_dir_paths.as_str()); // i.e.  images/{title}/
+                                                                      // original/source is formatted as images/{title}/{page:03}.jpg
+    let src_image_path = src_image_dir.join(format!("{:03}.jpg", page));
     if src_image_path.exists() == false {
         panic!("Source Image file not found: '{:?}'", src_image_path);
     }
@@ -97,17 +107,22 @@ fn copy_image_to_dataset(
     let dest_image_dir = match dstype {
         DatasetType::Train => images_train_dir(transformed_file_rootdir),
         DatasetType::Val => images_val_dir(transformed_file_rootdir),
+        DatasetType::Test => images_test_dir(transformed_file_rootdir),
     };
     let dest_label_dir = match dstype {
         DatasetType::Train => labels_train_dir(transformed_file_rootdir),
         DatasetType::Val => labels_val_dir(transformed_file_rootdir),
+        DatasetType::Test => labels_test_dir(transformed_file_rootdir),
     };
-    let dest_image_path = dest_image_dir.join(format!("{}_{}.jpg", src_book.title.clone(), page));
-    //let dest_label_path = dest_label_dir.join(format!("{}_{}.txt", title, page));
+    let dest_image_path = dest_image_dir.join(format_filename(&src_book.title, page, "jpg"));
+    //let dest_label_path = dest_label_dir.join(format!("{}_{:03}.txt", title, page));
 
     // if dest image exists, we don't need to copy it again
     if dest_image_path.exists() == false {
-        println!("Copying image from '{:?}' to '{:?}'", src_image_path, dest_image_path);
+        println!(
+            "Copying image from '{:?}' to '{:?}'",
+            src_image_path, dest_image_path
+        );
         std::fs::copy(src_image_path, dest_image_path).unwrap();
     }
 }
@@ -116,12 +131,14 @@ fn get_labels_file_paths(
     transformed_file_rootdir: &str,
     dstype: DatasetType,
     title: &str,
+    page: &usize,
 ) -> std::path::PathBuf {
     let path = match dstype {
         DatasetType::Train => labels_train_dir(transformed_file_rootdir),
         DatasetType::Val => labels_val_dir(transformed_file_rootdir),
+        DatasetType::Test => labels_test_dir(transformed_file_rootdir),
     };
-    let ret_path = path.join(format!("{}.txt", title));
+    let ret_path = path.join(format_filename(title, page, "txt"));
     normalize_paths(&ret_path)
 }
 
@@ -141,8 +158,9 @@ fn write_yolo_label_file(
 }
 
 fn main() {
-    let training_ratio = 0.8; // 80% training, 20% validation
-    let transformed_file_rootdir = "./data/";
+    let training_ratio = 0.8; // 80% training, 20% (validation and test)
+    let validation_ratio = 0.1; // 10% validation, 10% test
+    let transformed_file_rootdir = "../../data/";
     let manga109_root = "../../../../data/Manga109s/Manga109s_released_2023_12_07/";
     let manga109 = manga109api::Manga109::new(manga109_root);
     mk_dataset_dir(transformed_file_rootdir);
@@ -150,55 +168,77 @@ fn main() {
     // first, get number of books we have, and decide how many books to put in training and validation
     let num_books = manga109.books.len();
     let num_train_books = (num_books as f32 * training_ratio).round() as usize;
-    //let num_val_books = num_books - num_train_books;
+    let num_val_books = (num_books as f32 * validation_ratio).round() as usize;
+    let num_test_books = num_books - num_train_books - num_val_books;
+
     // shuffle book indices to randomly select books for training and validation
     let mut book_indices: Vec<usize> = (0..num_books).collect();
     book_indices.shuffle(&mut rand::thread_rng());
     let train_books_indices = &book_indices[0..num_train_books];
-    //let val_books_indices = &book_indices[num_train_books..num_books];
+    let val_books_indices = &book_indices[num_train_books..num_books];
+    let test_books_indices = &book_indices[num_train_books + num_val_books..num_books];
 
     // iterate through each books while converting annotations to YOLO format
     for (book_index, book) in manga109.books.iter().enumerate() {
         let is_training_dataset = train_books_indices.contains(&book_index);
-        // writer based on whether book_index is in train_books_indices or val_books_indices
-        let mut writer = if is_training_dataset {
-            let path = get_labels_file_paths(
-                transformed_file_rootdir,
-                DatasetType::Train,
-                &book.title.clone(),
-            );
-            println!("Writing to file: '{:?}'", path);
-            std::fs::File::create(path).unwrap()
-        } else {
-            let path = get_labels_file_paths(
-                transformed_file_rootdir,
-                DatasetType::Val,
-                &book.title.clone(),
-            );
-            println!("Writing to file: '{:?}'", path);
-            std::fs::File::create(path).unwrap()
-        };
+        let is_validation_dataset = val_books_indices.contains(&book_index);
 
         for page in &book.pages {
             // skip pages that has no TEXT
             if page.texts.len() == 0 {
                 continue;
             }
-            if is_training_dataset {
+
+            // writer based on whether book_index is in train_books_indices or val_books_indices
+            let mut writer_per_page = if is_training_dataset {
                 copy_image_to_dataset(
                     book,
                     transformed_file_rootdir,
                     DatasetType::Train,
                     &page.index,
                 );
-            } else {
+
+                let path = get_labels_file_paths(
+                    transformed_file_rootdir,
+                    DatasetType::Train,
+                    &book.title.clone(),
+                    &page.index,
+                );
+                println!("Writing to file: '{:?}'", path);
+                std::fs::File::create(path).unwrap()
+            } else if is_validation_dataset {
                 copy_image_to_dataset(
                     book,
                     transformed_file_rootdir,
                     DatasetType::Val,
                     &page.index,
                 );
-            }
+
+                let path = get_labels_file_paths(
+                    transformed_file_rootdir,
+                    DatasetType::Val,
+                    &book.title.clone(),
+                    &page.index,
+                );
+                println!("Writing to file: '{:?}'", path);
+                std::fs::File::create(path).unwrap()
+            } else {
+                copy_image_to_dataset(
+                    book,
+                    transformed_file_rootdir,
+                    DatasetType::Test,
+                    &page.index,
+                );
+
+                let path = get_labels_file_paths(
+                    transformed_file_rootdir,
+                    DatasetType::Test,
+                    &book.title.clone(),
+                    &page.index,
+                );
+                println!("Writing to file: '{:?}'", path);
+                std::fs::File::create(path).unwrap()
+            };
 
             for text in &page.texts {
                 // NOTE: We only care about the rectangle coordinates of the text, not the text (value) itself...
@@ -212,14 +252,14 @@ fn main() {
                         text.ymax,
                     );
                 write_yolo_label_file(
-                    &mut writer,
+                    &mut writer_per_page,
                     yolo_center_x,
                     yolo_center_y,
                     yolo_width,
                     yolo_height,
                 );
             }
+            writer_per_page.flush().unwrap(); // close?
         }
-        writer.flush().unwrap(); // close?
     }
 }

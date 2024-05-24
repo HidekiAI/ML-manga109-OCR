@@ -22,7 +22,8 @@ I've learned that it's an art of its own that a novice like myself should not di
 
 ## TL;DR: Step-by-step Recipe
 
-xxx
+1. First, run the [preprocessing tool](./tools/convert_annotations_to_yolo/README.md) to convert manga109 annotation file to YOLO label format
+2. Now download ([git clone]()) the word version (as compared to character version) of Japanese text detection from [here](https://huggingface.co/tohoku-nlp)
 
 ## Tutorials, researchs, educations, and examples
 

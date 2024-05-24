@@ -13,12 +13,17 @@ Cargo.lock
 # MSVC Windows builds of rustc generate these, which store debugging information
 *.pdb
 
+# YOLO trained data
+*.pt
+
 # binary data which should not be pushed
 data/
 .vscode/
 data*/
-
 data
-
+dataset
+dataset*/
+dataset/
 temp/
+runs/
 

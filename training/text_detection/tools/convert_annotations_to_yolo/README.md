@@ -91,13 +91,13 @@ data/
 │       └── <title_vN>_<page>.jpg
 └── labels/
     ├── train/
-    │   ├── <title_t1>.txt
+    │   ├── <title_t1>_001.txt
     │   ├── ...
-    │   └── <title_tN>.txt
+    │   └── <title_tN>_<page>.txt
     └── val/
-        ├── <title_v1>.txt
+        ├── <title_v1>_001.txt
         ├── ...
-        └── <title_vN>.txt
+        └── <title_vN>_<page>.txt
 ```
 
 labels are in YOLO annotation text format of:
@@ -109,3 +109,5 @@ labels are in YOLO annotation text format of:
 where `<center_x> <center_y> <width> <height>` are normalized to `[0.0 .. 1.0]` and `<category>` is the category index of the object;  In this case, since there will be only one category ("TEXT"), it will (always) be 0.
 
 And finally, this part is mainly to train to detect the text, so the `value` element (that actual Japanese UTF-8 string inside the bounding box) of the `text` annotations are ignored.
+
+Note one thing that I have to break down the text annotations to per-page files matching the image filename.  From a programmer's (non-data-scientists who's not used to this method of (inefficient) thinking) point of view, which we tend to think in hierarchical structures (i.e. OOP, inheritance, derivation, etc), we want to at least stuff as many data into single annotation file (the way original Manga109 annotation XML files are packaged as per-book).  In any case, long-story-short, we want to make sure each annotation text files matches the page filename, so that the internal engine can map image filenames to annotation filename 1:1.
