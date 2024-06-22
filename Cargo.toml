@@ -1,5 +1,5 @@
 workspace = { members = [ 
-    "Prototypes/manga109api",
+    "Prototypes/manga109api", "Prototypes/opencv_dnn_test",
     "Prototypes/tesseract_textboxed", 
     "training/text_detection/tools/convert_annotations_to_yolo"] }
 [package]
